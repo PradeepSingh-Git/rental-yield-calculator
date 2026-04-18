@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Property Yield Calculator — Investment Analysis</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="grain"></div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="brand">
+        <span class="brand-mark">▪</span>
+        <span class="brand-name">Yield Calculator</span>
+        <span class="brand-sub">Property Investment Analysis</span>
+      </div>
+      <div class="header-meta">
+        <span class="badge-eur">€</span>
+        <span class="header-tagline">Cash Flow Calculator · Germany</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- URL Input -->
+  <section class="url-section">
+    <div class="url-inner">
+      <div class="url-label">Paste a property listing link</div>
+      <div class="url-row">
+        <div class="url-input-wrap">
+          <span class="url-icon">⟶</span>
+          <input
+            id="urlInput"
+            type="url"
+            class="url-input"
+            placeholder="https://www.immoscout24.de/expose/… or immowelt.de/expose/…"
+            autocomplete="off"
+            spellcheck="false"
+          />
+        </div>
+        <button id="scrapeBtn" class="btn-scrape">
+          <span class="btn-text">Analyze</span>
+          <span class="btn-spinner" hidden>
+            <span class="spinner"></span>
+          </span>
+        </button>
+      </div>
+      <div id="scrapeStatus" class="scrape-status" hidden></div>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <main class="main-grid">
+
+    <!-- LEFT: Property Inputs -->
+    <section class="panel panel-left">
+      <div class="panel-header">
+        <span class="panel-num">01</span>
+        <h2 class="panel-title">Property</h2>
+      </div>
+
+      <!-- Property meta (scraped) -->
+      <div id="propertyMeta" class="property-meta" hidden>
+        <div class="meta-title" id="metaTitle"></div>
+        <div class="meta-address" id="metaAddress"></div>
+      </div>
+
+      <div class="fields-group">
+        <div class="fields-group-label">Purchase</div>
+
+        <div class="field">
+          <label class="field-label">
+            Purchase Price
+            <span id="badge_purchase_price" class="field-badge" hidden></span>
+          </label>
+          <div class="field-input-wrap">
+            <span class="field-prefix">€</span>
+            <input id="purchase_price" type="number" class="field-input" placeholder="350000" min="0" step="1000" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">
+            Monthly Rent (cold)
+            <span id="badge_monthly_rent" class="field-badge" hidden></span>
+          </label>
+          <div class="field-input-wrap">
+            <span class="field-prefix">€</span>
+            <input id="monthly_rent" type="number" class="field-input" placeholder="1200" min="0" step="50" />
+          </div>
+          <div class="field-hint">Achievable cold rent per month</div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">
+            Hausgeld / Month
+            <span id="badge_hausgeld" class="field-badge" hidden></span>
+          </label>
+          <div class="field-input-wrap">
+            <span class="field-prefix">€</span>
+            <input id="hausgeld" type="number" class="field-input" placeholder="300" min="0" step="10" />
+          </div>
+          <div class="field-hint">HOA, management &amp; reserve fund</div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Maintenance / Month</label>
+          <div class="field-input-wrap">
+            <span class="field-prefix">€</span>
+            <input id="maintenance" type="number" class="field-input" placeholder="100" min="0" step="10" />
+          </div>
+          <div class="field-hint">Repairs &amp; upkeep reserve</div>
+        </div>
+      </div>
+
+      <div class="fields-group">
+        <div class="fields-group-label">Property</div>
+
+        <div class="field">
+          <label class="field-label">
+            Living Area
+            <span id="badge_property_size_m2" class="field-badge" hidden></span>
+          </label>
+          <div class="field-input-wrap">
+            <input id="property_size_m2" type="number" class="field-input" placeholder="75" min="0" step="1" />
+            <span class="field-suffix">m²</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="fields-group">
+        <div class="fields-group-label">Financing</div>
+
+        <div class="field field-row">
+          <div class="field">
+            <label class="field-label">Interest Rate</label>
+            <div class="field-input-wrap">
+              <input id="interest_rate" type="number" class="field-input" placeholder="4.0" min="0" max="15" step="0.1" value="4" />
+              <span class="field-suffix">%</span>
+            </div>
+          </div>
+          <div class="field">
+            <label class="field-label">Down Payment</label>
+            <div class="field-input-wrap">
+              <input id="down_payment_pct" type="number" class="field-input" placeholder="20" min="0" max="100" step="5" value="20" />
+              <span class="field-suffix">%</span>
+            </div>
+          </div>
+          <div class="field">
+            <label class="field-label">Loan Term</label>
+            <div class="field-input-wrap">
+              <input id="loan_term_years" type="number" class="field-input" placeholder="30" min="5" max="40" step="5" value="30" />
+              <span class="field-suffix">yrs</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fields-group">
+        <div class="fields-group-label">Purchase Costs</div>
+
+        <div class="field field-row">
+          <div class="field">
+            <label class="field-label">Transfer Tax</label>
+            <div class="field-input-wrap">
+              <input id="grunderwerbsteuer_pct" type="number" class="field-input" placeholder="3.5" min="0" max="10" step="0.5" value="3.5" />
+              <span class="field-suffix">%</span>
+            </div>
+            <div class="field-hint">BY 3.5% · NRW 6.5%</div>
+          </div>
+          <div class="field">
+            <label class="field-label">Notary &amp; Registry</label>
+            <div class="field-input-wrap">
+              <input id="notar_pct" type="number" class="field-input" placeholder="1.5" min="0" max="5" step="0.1" value="1.5" />
+              <span class="field-suffix">%</span>
+            </div>
+          </div>
+          <div class="field">
+            <label class="field-label">Agent Fee</label>
+            <div class="field-input-wrap">
+              <input id="makler_pct" type="number" class="field-input" placeholder="3.57" min="0" max="10" step="0.01" value="3.57" />
+              <span class="field-suffix">%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- RIGHT: Analysis -->
+    <section class="panel panel-right" id="analysisPanel">
+      <div class="panel-header">
+        <span class="panel-num">02</span>
+        <h2 class="panel-title">Analysis</h2>
+      </div>
+
+      <!-- Empty state -->
+      <!-- Results (hidden until data) -->
+      <div id="results" hidden>
+
+        <!-- Cashflow Verdict -->
+        <div id="verdict" class="verdict">
+          <div class="verdict-label">Monthly Cash Flow</div>
+          <div class="verdict-amount" id="verdictAmount">—</div>
+          <div class="verdict-badge" id="verdictBadge">—</div>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="metrics-grid">
+          <div class="metric">
+            <div class="metric-label">Gross Yield</div>
+            <div class="metric-value" id="grossYield">—</div>
+            <div class="metric-sub">p.a.</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Net Yield</div>
+            <div class="metric-value" id="netYield">—</div>
+            <div class="metric-sub">after costs</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Monthly Payment</div>
+            <div class="metric-value mono" id="monthlyMortgage">—</div>
+            <div class="metric-sub">annuity</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">ROI Horizon</div>
+            <div class="metric-value" id="roiYears">—</div>
+            <div class="metric-sub">years</div>
+          </div>
+        </div>
+
+        <!-- Monthly Breakdown -->
+        <div class="breakdown-section">
+          <div class="breakdown-title">Monthly Breakdown</div>
+          <div class="breakdown-table">
+            <div class="breakdown-row income">
+              <span class="br-label">+ Rental income</span>
+              <span class="br-value" id="brRent">—</span>
+            </div>
+            <div class="breakdown-row expense">
+              <span class="br-label">− Mortgage payment</span>
+              <span class="br-value" id="brMortgage">—</span>
+            </div>
+            <div class="breakdown-row expense">
+              <span class="br-label">− Hausgeld (HOA)</span>
+              <span class="br-value" id="brHausgeld">—</span>
+            </div>
+            <div class="breakdown-row expense">
+              <span class="br-label">− Maintenance</span>
+              <span class="br-value" id="brMaintenance">—</span>
+            </div>
+            <div class="breakdown-row total">
+              <span class="br-label">= Cash flow / month</span>
+              <span class="br-value" id="brCashflow">—</span>
+            </div>
+          </div>
+          <div class="break-even-note" id="breakEvenNote"></div>
+        </div>
+
+        <!-- Purchase Costs -->
+        <div class="breakdown-section">
+          <div class="breakdown-title">Purchase Costs &amp; Total Equity Required</div>
+          <div class="breakdown-table">
+            <div class="breakdown-row neutral">
+              <span class="br-label">Down payment</span>
+              <span class="br-value" id="pcDownPayment">—</span>
+            </div>
+            <div class="breakdown-row neutral">
+              <span class="br-label">Property transfer tax</span>
+              <span class="br-value" id="pcGrunderwerbsteuer">—</span>
+            </div>
+            <div class="breakdown-row neutral">
+              <span class="br-label">Notary &amp; land registry</span>
+              <span class="br-value" id="pcNotar">—</span>
+            </div>
+            <div class="breakdown-row neutral">
+              <span class="br-label">Agent commission</span>
+              <span class="br-value" id="pcMakler">—</span>
+            </div>
+            <div class="breakdown-row total">
+              <span class="br-label">= Total equity needed</span>
+              <span class="br-value" id="pcTotal">—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Loan info -->
+        <div class="loan-strip">
+          <div class="loan-item">
+            <div class="loan-label">Loan Amount</div>
+            <div class="loan-value mono" id="loanAmount">—</div>
+          </div>
+          <div class="loan-item">
+            <div class="loan-label">Interest Rate</div>
+            <div class="loan-value mono" id="loanRate">—</div>
+          </div>
+          <div class="loan-item">
+            <div class="loan-label">Term</div>
+            <div class="loan-value mono" id="loanTerm">—</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <span>For indicative purposes only · Independent financial advice recommended</span>
+      <span class="footer-sep">·</span>
+      <span>Yield Calculator © 2025</span>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
