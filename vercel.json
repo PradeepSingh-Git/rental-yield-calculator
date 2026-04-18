@@ -2,8 +2,5 @@
   "outputDirectory": "public",
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api/index" }
-  ],
-  "env": {
-    "ANTHROPIC_API_KEY": "@anthropic-api-key"
-  }
+  ]
 }
